@@ -1,202 +1,109 @@
-# [Курс BaseJava (обновленный и переработанный)](http://javaops.ru/reg/basejava)
+# BaseJava Course Project - Resume Database
 
-## Разработка web-приложения "База данных резюме"
+A training project from the BaseJava course. It is a Java 8 web application that stores and manages resumes with multiple storage backends (arrays, collections, file system, serialization formats, and PostgreSQL) and a simple JSP UI.
 
-В данном курсе вы создадите с нуля web-приложение, реализуя разные способы хранения резюме. Проект включает в себя следующее:
-  - **Технологии:** Java 8, GitHub/Git, JUnit, Logging, GSON, JAXB, SQL, PostgreSQL, Сервлеты, HTML, JSP, JSTL, Tomcat, Maven и многое другое
-  - **Различные способы реализации хранения резюме:**
-     - в сортированном и не сортированном массиве
-     - в коллекциях (List, Map)
-     - в файловой системе:
-        - с использованием File и Path API
-        - в стандартной и кастомной сериализации Java
-        - в формате JSON ([Google Gson](https://en.wikipedia.org/wiki/Gson))
-        - в формате XML ([JAXB](https://ru.wikipedia.org/wiki/Java_Architecture_for_XML_Binding))
-     -  в реляционной базе [PostgreSQL](https://ru.wikipedia.org/wiki/PostgreSQL)
-  - **Установку (деплой) web-приложения:**
-     - в контейнер сервлетов [Tomcat](https://ru.wikipedia.org/wiki/Apache_Tomcat)
-     - в облачный сервис [Heroku](https://ru.wikipedia.org/wiki/Heroku)
+## What this project contains
 
-> Любое знание стоит воспринимать как подобие семантического дерева: убедитесь в том, что понимаете фундаментальные принципы, то есть ствол и крупные ветки, прежде чем лезть в мелкие листья-детали. Иначе последним не на чем будет держаться
+- Core domain model for resumes, contacts, and sections.
+- Storage implementations using different data structures and persistence strategies.
+- JDBC-based SQL storage with transactional helpers.
+- Web UI built with Servlets + JSP + JSTL.
+- JUnit 4 tests for storage behavior.
+- SQL scripts to initialize and populate the database.
 
-— Илон Маск
+## Key technologies
 
-### Изучите [бесплатный урок](lesson/lesson1.md). В конце урока находится домашнее задание, по которому можно оценить свой уровень готовности к проекту
+- Java 8
+- Servlets, JSP, JSTL
+- PostgreSQL + JDBC
+- Gson (JSON), JAXB (XML)
+- JUnit 4
 
-## Программа курса
+## Project structure (high level)
 
-#### Занятие 1 (бесплатное)
- - Обзор курса и методики обучения
- - Подготовка и настройка рабочего окружения
- - Подходы, применяемые при разработке ПО
- - Обзор инструментов и технологий, используемых Java-разработчиками
- - Введение в язык Java: история создания, JDK, JVM, JRE, JIT-компиляция
- - Системы управления версиями. Git
- - Домашнее задание
+- `src/model/` - Domain model (`Resume`, `ContactType`, `Section` types, `Organization`).
+- `src/storage/` - Storage API and implementations.
+- `src/storage/serializer/` - Serialization strategies (Object, DataStream, JSON, XML).
+- `src/sql/` - JDBC helpers (`SqlHelper`, transactions, exception mapping).
+- `src/web/` - `ResumeServlet` (CRUD controller).
+- `src/until/` - Utilities (JSON adapter, XML parser, dates, HTML helpers).
+- `web/` - JSP views and static assets.
+- `test/` - JUnit tests for storage implementations.
+- `config/` - DB config and SQL scripts.
 
-#### Занятие 2
- - Типы данных
- - Введение в объектно-ориентированное программирование
- - Принципы ООП
- - Классы и объекты
- - Классы-обертки
- - Модификаторы доступа
- - Конструктор
- - Структура памяти java-программы: Heap (куча), Stack (стек)
- - Пакеты
- - Домашнее задание
+## Domain model
 
-#### Занятие 3
- - Разбор домашнего задания
- - Обзор суперкласса Object
- - Связь между equals() и hashCode()
- - Статические методы и переменные
- - Программирование с помощью интерфейсов
- - Абстрактные классы
- - Сложность алгоритмов
- - Паттерн проектирования Template Method
- - Домашнее задание
- 
-#### Занятие 4
- - Разбор домашнего задания
- - Конструктор
- - Работа со строками: String, StringBuilder, StringBuffer
- - String literal pool
- - Исключения (Exceptions)
- - Ключевые слова: this, super
- - Reflection
- - Аннотации
- - Введение в модульное тестирование. JUnit 
- - Домашнее задание
+- `Resume` has a `uuid`, `fullName`, `contacts` (`ContactType -> String`) and `sections` (`SectionType -> Section`).
+- Sections are typed:
+  - `TextSection` for objective/personal text.
+  - `ListSection` for achievements/qualifications.
+  - `OrganizationSection` for experience/education with positions and dates.
 
-#### Занятие 5
- - Разбор домашнего задания
- - Коллекций. Иерархия классов
- - Списки (List)
- - Множества (Set)
- - Ассоциативные массивы (Map)
- - Введение в Iterator
- - Домашнее задание
- 
-#### Занятие 6
- - Разбор домашнего задания
- - Паттерн проектирования Iterator
- - Autoboxing и Unboxing
- - Вложенные классы
- - Внутренние классы
- - Локальные классы
- - Анонимные классы
- - Введение в лямбда-выражения
- - Функциональный интерфейс
- - Домашнее задание
+## Storage implementations
 
-#### Занятие 7
- - Разбор домашнего задания
- - Дженерики (Generic)
- - Введение в логирование. Log4J, Java Logging API
- - Паттерн проектирования Singleton
- - Перечисления (Enum)
- - Объектная модель
- - Домашнее задание
+All storages implement `storage.Storage`:
 
-#### Занятие 8
- - Разбор домашнего задания
- - Классы работы с датами: Date, Calendar, TimeZone
- - Дата и время в Java 8+
- - File API
- - Освобождение ресурсов: try-with-resources
- - Домашнее задание
+- Array-based: `ArrayStorage`, `SortedArrayStorage` (fixed size array).
+- Collection-based: `ListStorage`, `MapUuidStorage`, `MapResumeStorage`.
+- File system: `FileStorage` and `PathStorage` using `StreamSerializer`:
+  - `ObjectStreamSerializer` (Java serialization)
+  - `DataStreamSerializer` (custom binary format)
+  - `JsonStreamSerializer` (Gson)
+  - `XmlStreamSerializer` (JAXB)
+- Database: `SqlStorage` with JDBC and transactions. Sections are stored as JSON strings.
 
-#### Занятие 9
- - Разбор домашнего задания
- - Обзор пакета java.io
- - Классы чтения/записи потоков: InputStream и OutputStream
- - Паттерн проектирования Decorator
- - Классы чтения/записи символов: Reader и Writer
- - Сериализация объектов
- - Обзор пакета java.nio
- - Введение в Java 8+ Stream API
- - Домашнее задание
+`storage.Config` reads `config/resumes.properties` and currently wires `SqlStorage` as the active storage.
 
-#### Занятие 10
- - Разбор домашнего задания
- - Паттерн проектирования Strategy
- - Работа с XML (JAXB)
- - Работа с JSON (GSON)
- - Классы чтения/записи примитивных типов: DataInputStream и DataOutputStream
- - Домашнее задание
+## Database schema
 
-#### Занятие 11
- - Многопоточность
- - Закон Мура и Амдала
- - Потоки. Синхронизация доступа
- - Обзор методов класса Object
- - Ленивая инициализация
- - Java Memory Model
- - Deadlock
- - Домашнее задание
- 
-#### Занятие 12
- - Разбор домашнего задания
- - Обзор классов java.util.concurrent
- - Синхронизаторы
- - ThreadLocal-переменные
- - Сравнение с обменом (Compare-and-swap)
- - Домашнее задание
+See `config/init_db.sql`:
 
-#### Занятие 13
- - Разбор домашнего задания
- - Введение в реляционные базы данных
- - Язык SQL
- - Обзор NoSQL баз данных
- - Установка и настройка СУБД PostgreSQL
- - Работа с базами данных из IDEA
- - Конфигурирование базы данных и каталога хранения
- - Подключение базы данных к проекту
- - Обзор JDBC-архитектуры
- - Домашнее задание
+- `resume` (uuid, full_name)
+- `contact` (resume_uuid, type, value)
+- `section` (resume_uuid, type, content)
 
-#### Занятие 14
- - Разбор домашнего задания
- - Операции соединения таблиц. JOIN
- - Транзакции
- - Требования к транзакциям. ACID
- - Уровни изоляции транзакций в SQL
- - Установка и настройка контейнера сервлетов Tomcat
- - Домашнее задание
+Optional sample data is in `config/populate.sql`.
 
-#### Занятие 15
- - Разбор домашнего задания
- - Введение в HTML
- - Основы протокола HTTP
- - Настройка web.xml
- - Деплой web-приложения в Tomcat
- - Сервлеты
- - Домашнее задание
- 
-#### Занятие 16
- - Разбор домашнего задания
- - Жизненный цикл сервлета
- - Создание динамических страниц. JSP
- - Расширенные возможности JSP. JSTL
- - Redirect и Forward
- - CRUD-операции
- - Домашнее задание
- 
-#### Занятие 17
- - Разбор домашнего задания
- - Деплой приложения в облачный сервис Heroku
- - Загрузка классов в Java. Classloader
- - Домашнее задание
+## Web layer
 
-## Рекомендуемые книги
-- [Яков Файн, "Программирование на Java для начинающих"](http://myflex.org/books/java4kids/java4kids.htm)
-- [Книги по Java: от новичка до профессионала](https://proglib.io/p/java-books-2019/)
-- [Джошуа Блох, "Java. Эффективное программирование, 3-е издание"](https://www.ozon.ru/context/detail/id/148627191/)
-- [Роберт Мартин, "Чистый код"](https://www.ozon.ru/context/detail/id/142429922/)
-- [Серия Head First, "Паттерны проектирования"](https://www.ozon.ru/context/detail/id/144233005/)
-- [Вайсфельд Мэтт, "Объектно-ориентированный подход"](https://www.ozon.ru/context/detail/id/166375103/?stat=YW5fMQ%3D%3D)
+- `web.ResumeServlet` handles `GET`/`POST` for list, view, add, edit, delete.
+- JSPs are in `web/WEB-INF/jsp/`:
+  - `list.jsp`, `view.jsp`, `edit.jsp`
+- The servlet is mapped to `/resume` in `web/WEB-INF/web.xml`.
 
-##  Ресурсы в сети
-- [EduTools плагин от JetBrains для изучения Kotlin, Java, Python, Scala и других языков](http://javaops.ru/view/story/story21#edutools)
-- [JetBrains Academy — интерактивный учебный курс по Java](https://www.jetbrains.com/ru-ru/academy/)
+## Configuration
+
+`config/resumes.properties`:
+
+- `storage.dir` - directory for file/path storages (currently a Windows path).
+- `db.url`, `db.user`, `db.password` - PostgreSQL connection settings.
+
+Note: `storage.Config` uses `config\\resumes.properties` and a Windows-style path by default. On macOS/Linux, update `storage.dir` and consider changing the config path to `config/resumes.properties` if needed.
+
+## How to run (IDE + Tomcat)
+
+This project does not include Maven/Gradle. The typical workflow is via IntelliJ IDEA with manually added libraries.
+
+1. Configure JDK 8.
+2. Add libraries from the root JARs (`gson-2.8.2.jar`, `postgresql-42.2.1.jar`) and the `lib/` folder (servlet/JSP/JSTL APIs).
+3. Create the database and schema using `config/init_db.sql`.
+4. Update `config/resumes.properties` with your local paths and DB credentials.
+5. Set up a Tomcat run configuration and deploy the `web/` folder.
+6. Open `http://localhost:8080/resume`.
+
+Example DB setup with `psql`:
+
+```bash
+createdb resumes
+psql -d resumes -f /Users/platon/IdeaProjects/basejava/config/init_db.sql
+psql -d resumes -f /Users/platon/IdeaProjects/basejava/config/populate.sql
+```
+
+## Tests
+
+JUnit 4 tests live under `test/`. The main suite is `test/storage/AllStorageTest.java`. Run them from the IDE after adding JUnit 4 to the test classpath.
+
+## Notes
+
+- `src/Main*` classes are small exercises and demos for arrays, collections, dates, reflection, etc.
+- There are two `Config` classes: `src/Config.java` (root) and `src/storage/Config.java`. The web app uses `src/storage/Config.java`.
